@@ -61,8 +61,9 @@ class LoginViewController: UITableViewController{
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        self.addKeyboderObserver()
         self.tableView.tableHeaderView = self.tableViewHeaderView()
+        self.tableView.tableFooterView = self.tableViewFooterView()
       // Uncomment the following line to preserve selection between presentations
         // self.clearsSelectionOnViewWillAppear = false
 
@@ -93,7 +94,7 @@ class LoginViewController: UITableViewController{
             let cell = tableView.dequeueReusableCell(withIdentifier: infoCellIdentifier, for: indexPath) as! infoCell
             
             cell.textField.placeholder = pAy[indexPath.row]
-            cell.textField.delegate = self
+            
             return cell
             
             
@@ -114,22 +115,59 @@ class LoginViewController: UITableViewController{
     
      // MARK: -
     func tableViewHeaderView() -> UIView {
-        let headerView = UIView(frame: CGRect(x: 0, y: 0, width: self.view.frame.size.width, height: 216))
+        let headerView = UIView(frame: CGRect(x: 0, y: 0, width: self.view.frame.size.width, height: 316))
         headerView.backgroundColor = UIColor.orange
         
         return headerView
         
     }
-}
-
-// MARK: -  TextFeildDelegate
-
-extension LoginViewController:UITextFieldDelegate{
     
-    override func textFieldDidBeginEditing(_ textField: UITextField) {
-        self.tableView.contentOffset
+    func tableViewFooterView() -> UIView {
+        let footerView = UIView(frame: CGRect(x: 0, y: 0, width: self.view.frame.size.width, height: 316))
+        footerView.backgroundColor = UIColor.orange
+        
+        return footerView
+        
     }
     
     
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+}
+
+// MARK: -  NotificationCenter
+
+extension LoginViewController{
+    
+    func addKeyboderObserver() -> Void {
+        //增加监听，当键盘出现或改变时收出消息
+    
+        NotificationCenter.default.addObserver(self, selector: #selector(LoginViewController.keyboardWillShow(notification:)), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
+        
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(LoginViewController.keyboardWillHide(notification:)), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
+
+    }
+    
+    func keyboardWillShow(notification:NSNotification) -> Void {
+        
+        let duration = notification.userInfo?[UIKeyboardAnimationDurationUserInfoKey] as!TimeInterval
+        print("===\(duration)")
+        
+        UIView.animate(withDuration: duration) {
+            
+            
+            self.tableView.setContentOffset(CGPoint(x: 0, y: 210), animated: false)
+        }
+    }
+    
+    func keyboardWillHide(notification:NSNotification) -> Void {
+        let duration = notification.userInfo?[UIKeyboardAnimationDurationUserInfoKey] as!TimeInterval
+        
+        UIView.animate(withDuration: duration) {
+            self.tableView.setContentOffset(CGPoint(x: 0, y:0), animated: false)
+        }
+    }
     
 }
